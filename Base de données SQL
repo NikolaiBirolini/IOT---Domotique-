@@ -1,0 +1,103 @@
+-- sqlite3 logement.db
+-- .read logement.sql
+
+-- Commandes de destruction des tables
+DROP TABLE IF EXISTS Logement;
+DROP TABLE IF EXISTS Adresse;
+DROP TABLE IF EXISTS Capteur;
+DROP TABLE IF EXISTS Piece;
+DROP TABLE IF EXISTS Type;
+DROP TABLE IF EXISTS Facture;
+DROP TABLE IF EXISTS Ville;
+
+DROP TABLE IF EXISTS donnes;
+DROP TABLE IF EXISTS L_Possede_P;
+DROP TABLE IF EXISTS L_Possede_F;
+
+-- Commandes de creation des tables
+CREATE TABLE Adresse (ID_Addr INTEGER PRIMARY KEY AUTOINCREMENT, Numero INTEGER NOT NULL, Nom TEXT NOT NULL, Code INTEGER NOT NULL, FOREIGN KEY (Code) REFERENCES Ville(Code));
+CREATE TABLE Ville (Code INTEGER PRIMARY KEY, Nom TEXT NOT NULL);
+CREATE TABLE Logement (ID_Logement INTEGER PRIMARY KEY AUTOINCREMENT, Tel TEXT NOT NULL, IP TEXT NOT NULL, ID_Addr INTEGER NOT NULL, FOREIGN KEY (ID_Addr) REFERENCES Adresse(ID_Addr));
+
+CREATE TABLE Facture (ID_Facture INTEGER PRIMARY KEY AUTOINCREMENT, Type TEXT NOT NULL, Date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, Montant INTEGER NOT NULL, Valeur INTEGER NOT NULL);
+CREATE TABLE Piece (ID_Piece INTEGER PRIMARY KEY AUTOINCREMENT, Nom TEXT NOT NULL, Localisation TEXT NOT NULL);
+CREATE TABLE Capteur (ID_Capteur INTEGER PRIMARY KEY AUTOINCREMENT, ID_Piece INTEGER NOT NULL, ID_Type INTEGER NOT NULL, Port INTEGER NOT NULL, FOREIGN KEY (ID_Piece) REFERENCES Piece(ID_Piece), FOREIGN KEY (ID_Type) REFERENCES Type(ID_Type));
+CREATE TABLE Type (ID_Type INTEGER PRIMARY KEY AUTOINCREMENT, Unite TEXT NOT NULL, Precision TEXT NOT NULL, Type TEXT NOT NULL, Ref_Commercial TEXT NOT NULL);
+CREATE TABLE Donnes (ID_Capteur INTEGER NOT NULL, Type TEXT NOT NULL, Date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, Data INTEGER NOT NULL, FOREIGN KEY (ID_Capteur) REFERENCES Capteur(ID_Capteur));
+
+-- Commandes de création des tables d'association
+CREATE TABLE L_Possede_P (ID_Logement INTEGER NOT NULL, ID_Piece INTEGER NOT NULL, FOREIGN KEY (ID_Logement) REFERENCES Logement(ID_Logement), FOREIGN KEY (ID_Piece) REFERENCES Piece(ID_Piece));
+CREATE TABLE L_Possede_F ( ID_Logement INTEGER NOT NULL, ID_Facture INTEGER NOT NULL, FOREIGN KEY (ID_Logement) REFERENCES Logement(ID_Logement), FOREIGN KEY (ID_Facture) REFERENCES Facture(ID_Facture));
+
+-- Création d'un logement avec 4 pièces
+INSERT INTO Logement (Tel, IP, ID_Addr) VALUES ("06 78 43 67 09", "222.100.300.0", 1);
+
+--SELECT * FROM Logement;
+
+INSERT INTO Adresse (Numero, Nom, Code) VALUES ("116", "rue de la ferme", 91260);
+
+--SELECT * FROM Adresse;
+
+INSERT INTO Ville (Code, Nom) VALUES (91260, "Draveil");
+
+--SELECT * FROM Ville;
+
+INSERT INTO Piece (Nom, Localisation) VALUES ("Chambre","001-138-128");
+INSERT INTO Piece (Nom, Localisation) VALUES ("Cuisine","002-138-128");
+INSERT INTO Piece (Nom, Localisation) VALUES ("Salle de bain","003-138-128");
+INSERT INTO Piece (Nom, Localisation) VALUES ("Sallon","004-138-128");
+
+--SELECT * FROM Piece;
+
+INSERT INTO L_Possede_P (ID_Logement, ID_Piece) VALUES (1,1);
+INSERT INTO L_Possede_P (ID_Logement, ID_Piece) VALUES (1,2);
+INSERT INTO L_Possede_P (ID_Logement, ID_Piece) VALUES (1,3);
+INSERT INTO L_Possede_P (ID_Logement, ID_Piece) VALUES (1,4);
+
+--SELECT * FROM L_Possede_P;
+
+-- Création de 4 type de capteur
+INSERT INTO Type (Unite, Precision, Type, Ref_Commercial) VALUES ("degres", "2", "temperature", "TEMP001");
+INSERT INTO Type (Unite, Precision, Type, Ref_Commercial) VALUES ("Lux", "300", "lumière", "LUM001");
+INSERT INTO Type (Unite, Precision, Type, Ref_Commercial) VALUES ("%", "10", "humidite relative", "HUM001");
+INSERT INTO Type (Unite, Precision, Type, Ref_Commercial) VALUES ("bin", "1-0", "volet", "VOL001");
+
+--SELECT * FROM Type;
+
+-- Création de 4 capteurs
+INSERT INTO Capteur (ID_Piece, ID_Type, Port) VALUES (1,1,1000);
+INSERT INTO Capteur (ID_Piece, ID_Type, Port) VALUES (2,2,1001);
+INSERT INTO Capteur (ID_Piece, ID_Type, Port) VALUES (3,3,1002);
+INSERT INTO Capteur (ID_Piece, ID_Type, Port) VALUES (4,4,1003);
+
+--SELECT * FROM Capteur;
+
+-- 2 Mesures par capteur
+INSERT INTO Donnes (ID_Capteur, Type, Data) VALUES (1, "temperature", 25);
+INSERT INTO Donnes (ID_Capteur, Type, Data) VALUES (1, "temperature", 26);
+
+INSERT INTO Donnes (ID_Capteur, Type, Data) VALUES (2, "eclairement", 800);
+INSERT INTO Donnes (ID_Capteur, Type, Data) VALUES (2, "eclairement", 500);
+
+INSERT INTO Donnes (ID_Capteur, Type, Data) VALUES (3, "humidite relative", 70);
+INSERT INTO Donnes (ID_Capteur, Type, Data) VALUES (3, "humidite relative", 80);
+
+INSERT INTO Donnes (ID_Capteur, Type, Data) VALUES (4, "mecanique", 1);
+INSERT INTO Donnes (ID_Capteur, Type, Data) VALUES (4, "mecanique", 0);
+
+--SELECT * FROM Donnes;
+
+-- Création de 4 factures
+INSERT INTO Facture (Type, Montant, Valeur) VALUES ("eau",300, 100);
+INSERT INTO Facture (Type, Montant, Valeur) VALUES ("electrecité",400, 500);
+INSERT INTO Facture (Type, Montant, Valeur) VALUES ("gaz",200,50);
+INSERT INTO Facture (Type, Montant, Valeur) VALUES ("abonement",15,1);
+
+--SELECT * FROM Facture;
+
+INSERT INTO L_Possede_F (ID_Logement, ID_Facture) VALUES (1,1);
+INSERT INTO L_Possede_F (ID_Logement, ID_Facture) VALUES (1,2);
+INSERT INTO L_Possede_F (ID_Logement, ID_Facture) VALUES (1,3);
+INSERT INTO L_Possede_F (ID_Logement, ID_Facture) VALUES (1,4);
+
+--SELECT * FROM L_Possede_F;
